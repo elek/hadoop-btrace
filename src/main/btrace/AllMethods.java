@@ -1,4 +1,3 @@
-
 import com.google.protobuf.Descriptors;
 import com.google.protobuf.Message;
 import com.sun.btrace.AnyType;
@@ -8,9 +7,6 @@ import java.io.File;
 import java.io.FileWriter;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Date;
 
 import static com.sun.btrace.BTraceUtils.println;
@@ -59,6 +55,7 @@ public class AllMethods {
             clazz = "+com.google.protobuf.BlockingService",
             method = "/callBlockingMethod/"
     )
+
     public static void serviceCallReturn(@Self Object o, @ProbeClassName String probeClass, @ProbeMethodName String probeMethod, AnyType[] args) {
         try {
 
@@ -76,6 +73,65 @@ public class AllMethods {
         }
 
     }
+
+
+    @OnMethod(clazz = "org.apache.hadoop.ipc.Server$Connection",
+            method = "/processRpcOutOfBandRequest/"
+    )
+    public static void outOfBandRequest(@Self Object o, @ProbeClassName String probeClass, @ProbeMethodName String probeMethod, AnyType[] args) {
+        try {
+
+            println(probeClass);
+            StringBuilder output = new StringBuilder();
+            Message message = (Message) (Object) args[0];
+            output.append(message.toString());
+            println(output.toString());
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+    }
+
+
+    @OnMethod(
+            clazz = "org.apache.hadoop.ipc.Server$Connection",
+            method = "/getMessage/",
+            location = @Location(Kind.RETURN)
+    )
+    public static void getMessage(@Self Object o, @Return Object result) {
+        try {
+
+            StringBuilder output = new StringBuilder();
+            println(result.getClass());
+            Message message = (Message) result;
+            output.append(message.toString());
+            println(output.toString());
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    @OnMethod(
+            clazz = "org.apache.hadoop.ipc.Server$Connection",
+            method = "/saslProcess/"
+    )
+    public static void saslProcess(@Self Object o, @ProbeClassName String probeClass, @ProbeMethodName String probeMethod, AnyType[] args) {
+        try {
+
+            StringBuilder output = new StringBuilder();
+            Message message = (Message) (Object) args[0];
+            output.append(message.toString());
+            println(output.toString());
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+    }
+
 
     private static void writeToFile(String s) {
         File file = outputFile.get();
@@ -97,7 +153,7 @@ public class AllMethods {
     )
     public static void serviceCall(@Self Object o, @ProbeClassName String probeClass, @ProbeMethodName String probeMethod, @Return Object result) {
         try {
-            StringBuilder output = new StringBuilder()`;
+            StringBuilder output = new StringBuilder();
             output.append("==== " + o.getClass() + "\n");
             Message message = (Message) (Object) result;
             output.append(message.toString() + "\n");
