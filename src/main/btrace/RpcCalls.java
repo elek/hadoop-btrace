@@ -13,7 +13,7 @@ import static com.sun.btrace.BTraceUtils.println;
 
 
 @BTrace(unsafe = true)
-public class AllMethods {
+public class RpcCalls {
 
     public static File outputDir;
 
@@ -28,7 +28,7 @@ public class AllMethods {
         }
     }
 
-    public AllMethods() {
+    public RpcCalls() {
 
     }
 
