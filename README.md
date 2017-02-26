@@ -1,16 +1,14 @@
-Work In Progress
+# BTrace scripts for investigate internals of Hadoop.
 
-BTrace scripts for investigate internals of Hadoop.
-
-```
-sudo docker-compose exec  namenode /root/hadoop-btrace/btrace/bin/btrace  -u  12  /root/hadoop-btrace/target/classes/META-INF/btrace/RpcCalls.class
-```
+_Work in progress_
 
 # Usage
 
 ## Compile the current project
 
-```mvn package```
+```
+mvn package
+```
 
 ## Download btrace
 
@@ -22,8 +20,19 @@ cd btrace
 wget https://github.com/btraceio/btrace/releases/download/v1.3.9/btrace-bin-1.3.9.zip
 unzip btrace*.zip
 ```
+
 ## Attach to an existing process
 
-root@namenode: /btrace/btrace> jps -l
+Find the process id of your java app:
+
+```
+jps -l
 18 org.apache.hadoop.hdfs.server.namenode.NameNode
 114 sun.tools.jps.Jps
+```
+
+Join to the process:
+
+```
+./btrace -u 18 target/classes/META-INF/btrace/RpcCalls.class
+```
