@@ -1,14 +1,11 @@
-import com.google.protobuf.Descriptors;
-import com.google.protobuf.Message;
 import com.sun.btrace.AnyType;
 import com.sun.btrace.annotations.*;
+import com.sun.xml.bind.marshaller.XMLWriter;
 import org.apache.hadoop.hdfs.server.namenode.FSEditLogOp;
-import org.apache.hadoop.hdfs.server.namenode.FSEditLogOpCodes;
+import org.xml.sax.SAXException;
 
 import java.io.File;
-import java.io.FileWriter;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
+import java.io.StringWriter;
 import java.util.Date;
 
 import static com.sun.btrace.BTraceUtils.println;
@@ -35,19 +32,22 @@ public class FsEditLog {
     }
 
     @OnMethod(
-            clazz = "org.apache.hadoop.hdfs.server.namenode.FsEditLog",
-        method = "/doEditTransaction/",
-        location = @Location(Kind.RETURN)
+        clazz = "+org.apache.hadoop.hdfs.server.namenode.EditLogOutputStream",
+        method = "/write/"
     )
-    public static void serviceCall(@Self Object o, @ProbeClassName String probeClass, @ProbeMethodName String probeMethod, @Return Object result) {
+    public static void write(@Self Object o, @ProbeClassName String probeClass, @ProbeMethodName String probeMethod, AnyType[] args) {
+        FSEditLogOp editLogOp = (FSEditLogOp) args[0];
+        println("Writing " + editLogOp.getClass().getSimpleName() + " to the journal log with" + probeClass);
         try {
-            FSEditLogOp editLogOp = (FSEditLogOp) result;
-            println(editLogOp.getTransactionIdStr()+" "+ editLogOp.opCode.name());
-        } catch (Exception e) {
+            StringWriter buffer = new StringWriter();
+            XMLWriter xwriter = new XMLWriter(buffer, "UTF-8");
+            editLogOp.outputToXml(xwriter);
+            println(buffer.toString());
+            println();
+        } catch (SAXException e) {
             e.printStackTrace();
         }
 
     }
-
 
 }
